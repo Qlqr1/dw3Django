@@ -23,7 +23,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = str(os.getenv('SECRET_KEY'))
+# SECRET_KEY = str(os.getenv('SECRET_KEY'))
+SECRET_KEY = 'django-insecure-trcnx^!bzdg(7g(n6^0a!g-alv99-bd%do&b-9__c=@2of(z+6'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -40,6 +41,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'django_filters',
+    'alunos',
 ]
 
 MIDDLEWARE = [
@@ -123,3 +127,41 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+REST_FRAMEWORK = {
+    # Paginação: retorna 10 registros por página
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
+
+    # Filtros e ordenação
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',  # filtrar por campo
+        'rest_framework.filters.OrderingFilter',              # ordenar (?ordering=nome)
+        'rest_framework.filters.SearchFilter',                # buscar (?search=joao)
+    ],
+
+    # Exige que o usuário esteja autenticado para qualquer requisição
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+
+    # Define como o usuário se autentica (usuário e senha via formulário)
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+
+    # Define quais classes de throttling usar
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',   # para usuários não logados
+        'rest_framework.throttling.UserRateThrottle',   # para usuários logados
+    ],
+
+    # Define os limites de cada classe
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/day',   # anônimos: 100 requisições por dia
+        'user': '1000/day',  # autenticados: 1000 por dia
+        'matriculas': '5/day',   # ← limite especial para matrículas
+    },
+}
